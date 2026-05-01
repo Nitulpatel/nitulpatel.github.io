@@ -1,22 +1,89 @@
-import React from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 
-const SKILLS = [
-  { name: 'WordPress', level: 98 },
-  { name: 'PHP 8+', level: 92 },
-  { name: 'WooCommerce', level: 95 },
-  { name: 'React / Next.js', level: 85 },
-  { name: 'JavaScript / ES6+', level: 90 },
-  { name: 'MySQL', level: 88 },
-  { name: 'Tailwind CSS', level: 92 },
-  { name: 'Figma / UI Design', level: 80 },
-  { name: 'REST API / GraphQL', level: 84 },
-  { name: 'DevOps / cPanel', level: 78 },
+type TabType = 'frontend' | 'backend' | 'wordpress' | 'tools';
+
+const TAB_CONTENT = {
+  frontend: {
+    title: 'Front End Work',
+    skills: [
+      { name: 'React / Next.js', icon: '⚛️' },
+      { name: 'JavaScript / ES6+', icon: '✨' },
+      { name: 'Tailwind CSS', icon: '🎨' },
+      { name: 'TypeScript', icon: '📘' },
+      { name: 'CSS 3 Animations', icon: '🎬' },
+      { name: 'Responsive Design', icon: '📱' },
+      { name: 'Figma / UI Design', icon: '🖌️' },
+      { name: 'Web Performance', icon: '⚡' },
+    ],
+    tags: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'GSAP', 'Framer Motion', 'Vite', 'Webpack'],
+  },
+  backend: {
+    title: 'Backend Work',
+    skills: [
+      { name: 'PHP 8+', icon: '🐘' },
+      { name: 'MySQL', icon: '🗄️' },
+      { name: 'REST API Design', icon: '🔌' },
+      { name: 'Server Architecture', icon: '🏗️' },
+      { name: 'Database Optimization', icon: '⚙️' },
+      { name: 'Authentication & Security', icon: '🔐' },
+      { name: 'Caching Strategies', icon: '💾' },
+      { name: 'API Integration', icon: '🔗' },
+    ],
+    tags: ['PHP 8+', 'MySQL', 'REST API', 'GraphQL', 'Laravel', 'Database Design', 'Scalability', 'Security'],
+  },
+  wordpress: {
+    title: 'WordPress Work',
+    skills: [
+      { name: 'WordPress Core', icon: '📌' },
+      { name: 'WooCommerce', icon: '🛒' },
+      { name: 'Custom Themes', icon: '🎭' },
+      { name: 'Plugin Development', icon: '🔧' },
+      { name: 'Performance Optimization', icon: '🚀' },
+      { name: 'ACF Pro', icon: '📝' },
+      { name: 'Payment Gateways', icon: '💳' },
+      { name: 'Headless WordPress', icon: '🧠' },
+    ],
+    tags: ['WordPress', 'WooCommerce', 'ACF Pro', 'Custom Themes', 'Plugin Dev', 'Elementor', 'WPML', 'REST API'],
+  },
+  tools: {
+    title: 'Tools & Workflow',
+    skills: [
+      { name: 'Git / Version Control', icon: '🌳' },
+      { name: 'Docker', icon: '🐳' },
+      { name: 'DevOps / cPanel', icon: '⚙️' },
+      { name: 'Figma', icon: '🎨' },
+      { name: 'CLI Tools', icon: '💻' },
+      { name: 'Build Tools', icon: '🛠️' },
+      { name: 'Testing & Debugging', icon: '🐛' },
+      { name: 'CI/CD Pipelines', icon: '🔄' },
+    ],
+    tags: ['Git', 'GitHub', 'Docker', 'cPanel', 'Figma', 'VS Code', 'npm/yarn', 'Webpack', 'Vite', 'Postman'],
+  },
+};
+
+const TABS: { key: TabType; label: string }[] = [
+  { key: 'frontend', label: 'Front End' },
+  { key: 'backend', label: 'Backend' },
+  { key: 'wordpress', label: 'WordPress' },
+  { key: 'tools', label: 'Tools & Workflow' },
 ];
 
-const TOOLS = ['WordPress', 'PHP', 'WooCommerce', 'React', 'Next.js', 'Tailwind CSS', 'MySQL', 'JavaScript', 'TypeScript', 'Figma', 'Git', 'Docker', 'REST API', 'GraphQL', 'Elementor', 'ACF Pro'];
-
 const Skills = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('frontend');
+  const tabsRef = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+  const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 });
+
+  const handleTabClick = (tab: TabType, element: HTMLButtonElement) => {
+    setActiveTab(tab);
+    updateUnderline(element);
+  };
+
+  const updateUnderline = (element: HTMLButtonElement) => {
+    const { offsetLeft, offsetWidth } = element;
+    setUnderlineStyle({ left: offsetLeft, width: offsetWidth });
+  };
+
   return (
     <section id="skills" className="section" style={{ position: 'relative', overflow: 'hidden' }}>
       {/* Dark bg */}
@@ -45,7 +112,7 @@ const Skills = () => {
             fontWeight: 900,
             letterSpacing: '-0.04em',
             color: '#fff',
-            margin: '0 0 24px',
+            margin: '0 0 12px',
             lineHeight: 1.05,
           }}
         >
@@ -57,97 +124,367 @@ const Skills = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
-          style={{ fontSize: '16px', color: '#666', marginBottom: '56px', maxWidth: '480px', lineHeight: 1.7 }}
+          style={{ fontSize: '16px', color: '#666', marginBottom: '48px', maxWidth: '520px', lineHeight: 1.7 }}
         >
-          Equipped with the latest technologies to build robust, scalable, and beautiful digital products.
+          Specialized expertise across front-end, back-end, WordPress, and modern development tools.
         </motion.p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px' }} className="skills-grid">
-          {/* Skill bars */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {SKILLS.map((skill, i) => (
-              <motion.div
-                key={skill.name}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.06, duration: 0.5 }}
+        {/* Tab Buttons - Modern Design */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.15 }}
+          style={{
+            marginBottom: '48px',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              gap: '0',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              position: 'relative',
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              scrollBehavior: 'smooth',
+            }}
+            className="tabs-container"
+          >
+            {TABS.map((tab, index) => (
+              <button
+                key={tab.key}
+                ref={el => { tabsRef.current[tab.key] = el; }}
+                onClick={(e) => {
+                  handleTabClick(tab.key, e.currentTarget as HTMLButtonElement);
+                }}
+                onMouseEnter={(e) => {
+                  updateUnderline(e.currentTarget as HTMLButtonElement);
+                }}
+                onMouseLeave={() => {
+                  if (tabsRef.current[activeTab]) {
+                    updateUnderline(tabsRef.current[activeTab]!);
+                  }
+                }}
+                style={{
+                  padding: '16px 28px',
+                  fontSize: '14px',
+                  fontWeight: activeTab === tab.key ? 700 : 600,
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  color: activeTab === tab.key ? '#ff4747' : '#666',
+                  letterSpacing: '0.02em',
+                  fontFamily: 'Outfit, sans-serif',
+                  position: 'relative',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 600, color: '#ccc' }}>{skill.name}</span>
-                  <span style={{ fontSize: '13px', color: '#ff4747', fontWeight: 700 }}>{skill.level}%</span>
-                </div>
-                <div style={{ height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${skill.level}%` }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.06 + 0.3, duration: 0.8, ease: 'easeOut' }}
-                    style={{
-                      height: '100%',
-                      background: 'linear-gradient(to right, #ff4747, #ff8080)',
-                      borderRadius: '4px',
-                    }}
-                  />
-                </div>
-              </motion.div>
+                {tab.label}
+              </button>
             ))}
+            
+            {/* Animated underline indicator */}
+            <motion.div
+              animate={underlineStyle}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              style={{
+                position: 'absolute',
+                bottom: '-1px',
+                height: '2px',
+                background: 'linear-gradient(90deg, #ff4747, #ff8080)',
+                borderRadius: '2px',
+              }}
+            />
           </div>
+        </motion.div>
 
-          {/* Tool tags */}
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '28px', letterSpacing: '0.02em' }}>
-              Tools & Technologies
-            </h3>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-              {TOOLS.map((tool, i) => (
-                <motion.span
-                  key={tool}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05, duration: 0.4 }}
-                  whileHover={{ scale: 1.08, borderColor: '#ff4747', color: '#ff4747' }}
+        {/* Tab Content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '64px',
+              paddingTop: '24px',
+            }}
+            className="skills-content"
+          >
+            {/* Skill cards with icons */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '20px',
+              }}
+            >
+              {TAB_CONTENT[activeTab].skills.map((skill, i) => (
+                <motion.div
+                  key={skill.name}
+                  initial={{ opacity: 0, scale: 0.9, y: 16 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: i * 0.06, duration: 0.4 }}
+                  className="glass-card skill-card"
+                  whileHover={{
+                    y: -8,
+                    boxShadow: '0 24px 60px rgba(255,71,71,0.18)',
+                    borderColor: 'rgba(255,71,71,0.3)',
+                  }}
                   style={{
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    padding: '8px 18px',
-                    borderRadius: '9999px',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#888',
-                    cursor: 'default',
-                    transition: 'all 0.2s ease',
+                    borderRadius: '16px',
+                    padding: '28px 24px',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '16px',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,71,71,0.02) 100%)',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    transition: 'all 0.3s ease',
                   }}
                 >
-                  {tool}
-                </motion.span>
-              ))}
-            </div>
+                  {/* Animated background blur */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'radial-gradient(circle at 50% 50%, rgba(255,71,71,0.1), transparent)',
+                      opacity: 0,
+                      transition: 'opacity 0.3s ease',
+                      pointerEvents: 'none',
+                    }}
+                    className="card-blur"
+                  />
 
-            {/* Info card */}
+                  <motion.div
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '14px',
+                      display: 'grid',
+                      placeItems: 'center',
+                      background: 'rgba(255,71,71,0.1)',
+                      border: '1.5px solid rgba(255,71,71,0.2)',
+                      boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.12)',
+                      position: 'relative',
+                      zIndex: 1,
+                    }}
+                  >
+                    <span style={{ fontSize: '24px', color: '#ff6f6f', lineHeight: 1 }}>{skill.icon}</span>
+                  </motion.div>
+
+                  <div
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: 800,
+                      color: '#fff',
+                      position: 'relative',
+                      zIndex: 1,
+                      lineHeight: 1.35,
+                      maxWidth: '140px',
+                    }}
+                  >
+                    {skill.name}
+                  </div>
+                  <div
+                    style={{
+                      width: '38px',
+                      height: '3px',
+                      borderRadius: '9999px',
+                      background: 'linear-gradient(90deg, #ff4747, #ff8080)',
+                      position: 'relative',
+                      zIndex: 1,
+                    }}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Right Panel - Tags and description */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="glass-card"
-              style={{ marginTop: '40px', borderRadius: '20px', padding: '28px', borderColor: 'rgba(255,71,71,0.2)' }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
             >
-              <div style={{ fontSize: '13px', color: '#ff4747', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>✦ Always Learning</div>
-              <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.7, margin: 0 }}>
-                Staying ahead of the curve — continuously exploring new tools, frameworks, and best practices to deliver cutting-edge solutions.
-              </p>
+              {/* Category Header */}
+              <div style={{ marginBottom: '36px' }}>
+                <div
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    color: '#ff4747',
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    marginBottom: '8px',
+                  }}
+                >
+                  ✦ {TAB_CONTENT[activeTab].title}
+                </div>
+                <h3
+                  style={{
+                    fontSize: '20px',
+                    fontWeight: 700,
+                    color: '#fff',
+                    margin: 0,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  Key <span style={{ color: '#ff4747' }}>Technologies</span> & Skills
+                </h3>
+              </div>
+
+              {/* Tags */}
+              <div style={{ marginBottom: '40px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                  }}
+                >
+                  {TAB_CONTENT[activeTab].tags.map((tag, i) => (
+                    <motion.span
+                      key={tag}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.04, duration: 0.3 }}
+                      whileHover={{
+                        scale: 1.08,
+                        borderColor: '#ff4747',
+                        color: '#ff4747',
+                        boxShadow: '0 0 12px rgba(255,71,71,0.2)',
+                      }}
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        color: '#888',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        background: 'rgba(255,255,255,0.02)',
+                      }}
+                    >
+                      {tag}
+                    </motion.span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Info card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="glass-card"
+                whileHover={{ y: -4, boxShadow: '0 12px 40px rgba(255,71,71,0.1)' }}
+                style={{
+                  borderRadius: '16px',
+                  padding: '32px',
+                  border: '1px solid rgba(255,71,71,0.15)',
+                  background: 'linear-gradient(135deg, rgba(255,71,71,0.08) 0%, rgba(255,71,71,0.02) 100%)',
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '11px',
+                    color: '#ff4747',
+                    fontWeight: 800,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    marginBottom: '16px',
+                  }}
+                >
+                  ✦ Expert Level
+                </div>
+                <p
+                  style={{
+                    fontSize: '14px',
+                    color: '#aaa',
+                    lineHeight: 1.8,
+                    margin: 0,
+                    fontWeight: 500,
+                  }}
+                >
+                  {activeTab === 'frontend' && 'Modern front-end frameworks with pixel-perfect implementations and smooth animations. Expertise in React, Next.js, and cutting-edge CSS technologies.'}
+                  {activeTab === 'backend' && 'Scalable server architecture with optimized databases and secure API design. Proven experience building high-performance backend systems.'}
+                  {activeTab === 'wordpress' && 'Full WordPress ecosystem mastery from core to complex WooCommerce builds. Custom plugin development and theme optimization.'}
+                  {activeTab === 'tools' && 'Professional workflows with version control, deployment, and developer tools. Streamlined processes for efficient team collaboration.'}
+                </p>
+              </motion.div>
             </motion.div>
-          </div>
-        </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       <style>{`
-        @media (max-width: 1024px) {
-          .skills-grid { grid-template-columns: 1fr !important; }
+        .tabs-container {
+          scrollbar-width: none;
         }
+        .tabs-container::-webkit-scrollbar {
+          display: none;
+        }
+
+        .skill-card:hover .card-blur {
+          opacity: 1 !important;
+        }
+
+        @media (max-width: 1024px) {
+          .skills-content {
+            grid-template-columns: 1fr !important;
+            gap: 48px !important;
+            padding-top: 20px;
+          }
+          .skill-card {
+            padding: 24px 20px !important;
+          }
+        }
+
         @media (max-width: 767px) {
-          .skills-grid { gap: 40px !important; }
+          .skills-content {
+            gap: 40px !important;
+          }
+          .skill-card {
+            padding: 20px 16px !important;
+            border-radius: 12px !important;
+          }
+          .tabs-container {
+            gap: 0 !important;
+            padding-bottom: 12px;
+          }
+          .tabs-container button {
+            padding: 14px 20px !important;
+            font-size: 13px !important;
+          }
+        }
+
+        @media (max-width: 560px) {
+          .skill-card {
+            font-size: 12px !important;
+            padding: 16px 12px !important;
+          }
+          .tabs-container button {
+            padding: 12px 16px !important;
+            font-size: 12px !important;
+          }
         }
       `}</style>
     </section>

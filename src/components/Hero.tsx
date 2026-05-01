@@ -51,7 +51,7 @@ function useTypewriter(words: string[], typingSpeed = 80, pauseMs = 1800, delete
         }, deleteSpeed);
         return () => clearTimeout(t);
       } else {
-        setWordIdx((prev) => (prev + 1) % words.length);
+        setWordIdx((prev: number) => (prev + 1) % words.length);
         setPhase('typing');
       }
     }
@@ -180,12 +180,12 @@ const Hero = ({ onNavigate }: HeroProps) => {
                   fontWeight: 700, fontSize: '14px', cursor: 'pointer',
                   fontFamily: 'Outfit, sans-serif', transition: 'all 0.3s ease',
                 }}
-                onMouseEnter={e => {
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                   (e.currentTarget as HTMLButtonElement).style.background = '#cc2e2e';
                   (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
                   (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 28px rgba(255,71,71,0.35)';
                 }}
-                onMouseLeave={e => {
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                   (e.currentTarget as HTMLButtonElement).style.background = '#ff4747';
                   (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
                   (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none';
@@ -202,11 +202,11 @@ const Hero = ({ onNavigate }: HeroProps) => {
                   fontWeight: 700, fontSize: '14px', cursor: 'pointer',
                   fontFamily: 'Outfit, sans-serif', transition: 'all 0.3s ease',
                 }}
-                onMouseEnter={e => {
+                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                   (e.currentTarget as HTMLButtonElement).style.borderColor = '#fff';
                   (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.05)';
                 }}
-                onMouseLeave={e => {
+                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                   (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.22)';
                   (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
                 }}
@@ -223,9 +223,8 @@ const Hero = ({ onNavigate }: HeroProps) => {
               style={{ display: 'flex', gap: '12px', alignItems: 'center' }}
             >
               {[
-                { Icon: Github, href: '#', label: 'GitHub' },
-                { Icon: Linkedin, href: '#', label: 'LinkedIn' },
-                { Icon: Twitter, href: '#', label: 'Twitter' },
+                { Icon: Github, href: 'https://github.com/nitulpatel', label: 'GitHub' },
+                { Icon: Linkedin, href: 'https://www.linkedin.com/in/nitul-patel-a4ab64141', label: 'LinkedIn' },
               ].map(({ Icon, href, label }) => (
                 <a
                   key={label}
@@ -237,12 +236,12 @@ const Hero = ({ onNavigate }: HeroProps) => {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: '#666', transition: 'all 0.25s ease', textDecoration: 'none',
                   }}
-                  onMouseEnter={e => {
+                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
                     (e.currentTarget).style.borderColor = '#ff4747';
                     (e.currentTarget).style.color = '#ff4747';
                     (e.currentTarget).style.background = 'rgba(255,71,71,0.08)';
                   }}
-                  onMouseLeave={e => {
+                  onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
                     (e.currentTarget).style.borderColor = 'rgba(255,255,255,0.12)';
                     (e.currentTarget).style.color = '#666';
                     (e.currentTarget).style.background = 'transparent';
@@ -287,7 +286,7 @@ const Hero = ({ onNavigate }: HeroProps) => {
                   {[
                     { val: '5+', label: 'Years' },
                     { val: '120+', label: 'Projects' },
-                    { val: '85+', label: 'Clients' },
+                    { val: '3', label: 'Countries Served' },
                   ].map(({ val, label }) => (
                     <div key={label} style={{
                       textAlign: 'center', padding: '12px 6px',
@@ -304,7 +303,7 @@ const Hero = ({ onNavigate }: HeroProps) => {
                 <div style={{ marginBottom: '4px' }}>
                   <div style={{ fontSize: '11px', color: '#444', marginBottom: '10px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Currently working with</div>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    {['WordPress', 'React', 'PHP', 'WooCommerce', 'Next.js'].map(tag => (
+                    {['HTML', 'CSS', 'JavaScript', 'WordPress', 'React', 'PHP', 'WooCommerce'].map(tag => (
                       <span key={tag} style={{
                         fontSize: '11px', fontWeight: 600,
                         background: 'rgba(255,71,71,0.1)', color: '#ff4747',
@@ -322,7 +321,7 @@ const Hero = ({ onNavigate }: HeroProps) => {
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 className="glass-card"
                 style={{
-                  position: 'absolute', bottom: '-18px', right: '-16px',
+                  position: 'absolute', bottom: '-30px', right: '-30px',
                   padding: '12px 18px', borderRadius: '16px',
                   display: 'flex', alignItems: 'center', gap: '10px',
                 }}

@@ -16,9 +16,8 @@ const Footer = ({ onNavigate }: FooterProps) => {
   ];
 
   const socials = [
-    { Icon: Github, href: '#', label: 'GitHub' },
-    { Icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { Icon: Twitter, href: '#', label: 'Twitter' },
+    { Icon: Github, href: 'https://github.com/nitulpatel', label: 'GitHub' },
+    { Icon: Linkedin, href: 'https://www.linkedin.com/in/nitul-patel-a4ab64141', label: 'LinkedIn' },
     { Icon: Mail, href: 'mailto:nitulpatel504@gmail.com', label: 'Email' },
   ];
 
@@ -117,7 +116,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
           borderTop: '1px solid rgba(255,255,255,0.05)',
           paddingTop: '28px',
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '16px',
@@ -125,9 +124,7 @@ const Footer = ({ onNavigate }: FooterProps) => {
           <p style={{ fontSize: '13px', color: '#444', margin: 0 }}>
             © 2025 Nitul Patel. All rights reserved.
           </p>
-          <p style={{ fontSize: '13px', color: '#444', margin: 0 }}>
-            Built with <span style={{ color: '#ff4747' }}>♥</span> using React & TypeScript
-          </p>
+
         </div>
       </div>
 

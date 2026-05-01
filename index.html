@@ -5,9 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nitul Patel | Full-Stack WordPress Developer</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { 
+        background: #0a0a0a; 
+        color: #fff; 
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        min-height: 100vh;
+      }
+      #root { min-height: 100vh; }
+      .error-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #0a0a0a;
+        padding: 20px;
+      }
+      .error-content {
+        text-align: center;
+        max-width: 500px;
+      }
+      .error-content h1 { font-size: 24px; margin-bottom: 10px; color: #ff4747; }
+      .error-content p { color: #888; line-height: 1.6; }
+    </style>
+    <script>
+      // GitHub Pages SPA redirect
+      (function() {
+        if (window.location.pathname.includes('/?/')) {
+          const path = window.location.pathname.split('/?/')[1] || '';
+          window.history.replaceState(null, null, window.location.origin + window.location.pathname.split('/?/')[0] + (path ? '/' + path : '') + window.location.search);
+        }
+      })();
+
+      // Global error handler
+      window.addEventListener('error', (e) => {
+        console.error('Global error:', e.error);
+      });
+      window.addEventListener('unhandledrejection', (e) => {
+        console.error('Unhandled rejection:', e.reason);
+      });
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="error-box">
+        <div class="error-content">
+          <h1>Loading...</h1>
+          <p>Portfolio is loading. If this takes more than a few seconds, please refresh the page.</p>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
