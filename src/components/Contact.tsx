@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'motion/react';
 import { Mail, Phone, MapPin, Send, CheckCircle, XCircle, Loader } from 'lucide-react';
+import { hasSupabaseConfig, supabase } from '../lib/supabase';
 
 interface ContactProps {
   onSubmissionSuccess: () => void;
@@ -13,16 +14,7 @@ const contactInfo = [
   { Icon: MapPin, label: 'Location', val: 'Ahmedabad, India',        href: 'https://maps.google.com/?q=Ahmedabad,India' },
 ];
 
-// ── PHP API endpoint ─────────────────────────────────────────────────────────
-// Dev:  Vite proxy rewrites /api/* → your PHP dev server  (see vite.config.ts)
-// Prod: /api/contact.php lives in the same public_html folder as the built site
-const REMOTE_API_ORIGIN = import.meta.env.VITE_API_URL
-  || (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')
-    ? 'https://nitul.infinityfreeapp.com'
-    : '');
-const API_CONTACT = REMOTE_API_ORIGIN ? `${REMOTE_API_ORIGIN}/api/contact.php` : '/api/contact';
-
-// Static-host fallback (e.g. GitHub Pages where PHP/Node API does not run)
+// Email notification relay (optional after Supabase insert)
 const FALLBACK_CONTACT = import.meta.env.VITE_CONTACT_FALLBACK_URL
   || 'https://formsubmit.co/ajax/nitulpatel504@gmail.com';
 
@@ -46,84 +38,55 @@ const Contact = ({ onSubmissionSuccess, standalone }: ContactProps) => {
     e.preventDefault();
     setStatus('loading');
     setErrMsg('');
+
+    if (!hasSupabaseConfig || !supabase) {
+      setErrMsg('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 5000);
+      return;
+    }
+
     try {
-      const res  = await fetch(API_CONTACT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),   // PHP reads via php://input
-        credentials: 'same-origin',       // Required for InfinityFree cookie check
+      const { error } = await supabase.from('submissions').insert({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        date: new Date().toISOString(),
       });
-      const data = await res.json().catch(() => ({}));
 
-      if (res.ok) {
-        setStatus('success');
-        setFormData({ name: '', email: '', subject: '', message: '' });
-        onSubmissionSuccess();
-        setTimeout(() => setStatus('idle'), 4000);
-      } else {
-        // On static hosts (GitHub Pages), /api/contact is unavailable.
-        // Fall back to a form relay endpoint.
-        const fallback = await fetch(FALLBACK_CONTACT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            subject: formData.subject || 'Portfolio Contact Form',
-            message: formData.message,
-            _subject: `Portfolio inquiry from ${formData.name}`,
-            _captcha: 'false',
-            _template: 'table',
-          }),
-        });
-
-        if (fallback.ok) {
-          setStatus('success');
-          setFormData({ name: '', email: '', subject: '', message: '' });
-          onSubmissionSuccess();
-          setTimeout(() => setStatus('idle'), 4000);
-        } else {
-          const fallbackData = await fallback.json().catch(() => ({}));
-          setErrMsg(
-            (fallbackData as any)?.message
-            || (data as any)?.error
-            || 'Something went wrong',
-          );
-          setStatus('error');
-          setTimeout(() => setStatus('idle'), 4000);
-        }
-      }
-    } catch {
-      try {
-        const fallback = await fetch(FALLBACK_CONTACT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            subject: formData.subject || 'Portfolio Contact Form',
-            message: formData.message,
-            _subject: `Portfolio inquiry from ${formData.name}`,
-            _captcha: 'false',
-            _template: 'table',
-          }),
-        });
-
-        if (fallback.ok) {
-          setStatus('success');
-          setFormData({ name: '', email: '', subject: '', message: '' });
-          onSubmissionSuccess();
-          setTimeout(() => setStatus('idle'), 4000);
-        } else {
-          setErrMsg('Network error — please try again');
-          setStatus('error');
-          setTimeout(() => setStatus('idle'), 4000);
-        }
-      } catch {
-        setErrMsg('Network error — please try again');
+      if (error) {
+        setErrMsg(error.message || 'Unable to save submission');
         setStatus('error');
-        setTimeout(() => setStatus('idle'), 4000);
+        setTimeout(() => setStatus('idle'), 5000);
+        return;
       }
+
+      // Optional notification email. Do not fail the submission if this fails.
+      try {
+        await fetch(FALLBACK_CONTACT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject || 'Portfolio Contact Form',
+            message: formData.message,
+            _subject: `Portfolio inquiry from ${formData.name}`,
+            _captcha: 'false',
+            _template: 'table',
+          }),
+        });
+      } catch { /* no-op */ }
+
+      setStatus('success');
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      onSubmissionSuccess();
+      setTimeout(() => setStatus('idle'), 4000);
+    } catch {
+      setErrMsg('Network error — please try again');
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 5000);
     }
   };
 

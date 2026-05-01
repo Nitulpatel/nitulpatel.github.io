@@ -4,6 +4,7 @@ import {
   Mail, Calendar, MessageSquare, User, Lock,
   RefreshCw, Inbox, Download, LogOut,
 } from 'lucide-react';
+import { hasSupabaseConfig, supabase } from '../lib/supabase';
 
 interface Submission {
   name: string;
@@ -14,15 +15,7 @@ interface Submission {
   ip?: string;
 }
 
-// ── PHP API endpoints ─────────────────────────────────────────────────────────
-const REMOTE_API_ORIGIN = import.meta.env.VITE_API_URL
-  || (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')
-    ? 'https://nitul.infinityfreeapp.com'
-    : '');
-const API_BASE = REMOTE_API_ORIGIN ? `${REMOTE_API_ORIGIN}/api` : '/api';
-const USING_REMOTE_API = Boolean(REMOTE_API_ORIGIN);
-const IS_GITHUB_PAGES = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
-const SUBMISSIONS_ENDPOINT = REMOTE_API_ORIGIN ? `${API_BASE}/submissions.php` : `${API_BASE}/submissions`;
+const ADMIN_ACCESS_KEY = (import.meta.env.VITE_ADMIN_KEY as string | undefined) || 'nitulAdmin123';
 
 const AdminPage = () => {
   const [key,         setKey]         = useState('');
@@ -33,29 +26,34 @@ const AdminPage = () => {
   const [error,       setError]       = useState('');
   const [selected,    setSelected]    = useState<Submission | null>(null);
 
-  // ── Fetch all submissions from PHP API ──────────────────────────────────
-  const fetchSubmissions = async (adminKey: string) => {
+  // ── Fetch all submissions from Supabase ──────────────────────────────────
+  const fetchSubmissions = async () => {
     setLoading(true);
     setError('');
+
+    if (!hasSupabaseConfig || !supabase) {
+      setError('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res  = await fetch(`${SUBMISSIONS_ENDPOINT}?key=${encodeURIComponent(adminKey)}`, {
-        credentials: 'same-origin'
-      });
-      if (res.status === 401) {
-        setError('Invalid admin key.');
+      const { data, error } = await supabase
+        .from('submissions')
+        .select('name, email, subject, message, date, ip')
+        .order('date', { ascending: false });
+
+      if (error) {
+        setError(error.message || 'Unable to fetch submissions');
         setAuthed(false);
         return;
       }
-      const data = await res.json();
-      setSubmissions(data.submissions ?? []);
-      setTotal(data.total ?? 0);
+
+      setSubmissions((data as Submission[]) ?? []);
+      setTotal(data?.length ?? 0);
       setAuthed(true);
     } catch {
-      if (IS_GITHUB_PAGES && !USING_REMOTE_API) {
-        setError('Backend not connected. Set VITE_API_URL to your hosted PHP API domain.');
-      } else {
-        setError('Failed to connect to the server.');
-      }
+      setError('Failed to connect to the server.');
     } finally {
       setLoading(false);
     }
@@ -63,13 +61,29 @@ const AdminPage = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchSubmissions(key);
+    if (key !== ADMIN_ACCESS_KEY) {
+      setError('Invalid admin key.');
+      return;
+    }
+    fetchSubmissions();
   };
 
-  // ── CSV export — triggers PHP download ──────────────────────────────────
+  // ── CSV export ───────────────────────────────────────────────────────────
   const handleExportCSV = () => {
-    // PHP sends file as attachment → open in new tab so browser downloads it
-    window.open(`${SUBMISSIONS_ENDPOINT}?key=${encodeURIComponent(key)}&export=csv`, '_blank');
+    const lines = [
+      ['Date', 'Name', 'Email', 'Subject', 'Message', 'IP'],
+      ...submissions.map((s) => [s.date, s.name, s.email, s.subject, s.message, s.ip ?? '']),
+    ];
+    const csv = lines
+      .map((row) => row.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `submissions_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   // ── Export JSON in-browser ───────────────────────────────────────────────
@@ -131,7 +145,7 @@ const AdminPage = () => {
             <Lock size={28} color="#ff4747" style={{ marginBottom: 20 }} />
             <h2 style={{ fontSize: 20, fontWeight: 800, color: '#fff', margin: '0 0 8px' }}>Admin Access</h2>
             <p style={{ fontSize: 14, color: '#555', margin: '0 0 28px' }}>
-              Enter the admin key set in <code style={{ color: '#ff4747' }}>submissions.php</code> to view entries.
+              Enter the admin key to view inquiry entries.
             </p>
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <input
@@ -172,11 +186,11 @@ const AdminPage = () => {
 
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {/* Refresh */}
-                <button onClick={() => fetchSubmissions(key)} style={btnBase}>
+                <button onClick={() => fetchSubmissions()} style={btnBase}>
                   <RefreshCw size={13} /> Refresh
                 </button>
 
-                {/* Export CSV — PHP generates the file */}
+                {/* Export CSV */}
                 <button onClick={handleExportCSV}
                   style={{ ...btnBase, color: '#00e676', borderColor: 'rgba(0,230,118,0.25)', background: 'rgba(0,230,118,0.06)' }}>
                   <Download size={13} /> Export CSV
