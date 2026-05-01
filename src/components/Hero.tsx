@@ -67,13 +67,15 @@ const Hero = ({ onNavigate }: HeroProps) => {
   return (
     <section
       id="home"
-      className="section"
+      className="hero-section"
       style={{
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         position: 'relative',
         overflow: 'hidden',
+        padding: '80px 0',
       }}
     >
       {/* Grid BG */}
@@ -120,16 +122,16 @@ const Hero = ({ onNavigate }: HeroProps) => {
               <span style={{ color: '#ff4747' }}>Nitul Patel</span>
             </motion.h1>
 
-            {/* Typewriter role */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.6, duration: 0.7 }}
+              className="hero-role-container"
               style={{
                 fontSize: 'clamp(18px, 2.5vw, 28px)',
                 fontWeight: 600,
                 color: 'rgba(255,255,255,0.55)',
-                marginBottom: '24px',
+                marginBottom: '16px',
                 minHeight: '42px',
                 display: 'flex',
                 alignItems: 'center',
@@ -146,30 +148,30 @@ const Hero = ({ onNavigate }: HeroProps) => {
               />
             </motion.div>
 
-            {/* Sub-description */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.8, duration: 0.7 }}
+              className="hero-description"
               style={{
-                fontSize: 'clamp(14px, 1.6vw, 17px)',
+                fontSize: 'clamp(14px, 4vw, 17px)',
                 fontWeight: 400,
-                color: '#666',
-                marginBottom: '36px',
-                lineHeight: 1.75,
-                maxWidth: '440px',
+                color: '#888',
+                marginBottom: '32px',
+                lineHeight: 1.7,
+                maxWidth: '480px',
               }}
             >
               Full-Stack WordPress Developer crafting high-performance websites,
               custom themes &amp; WooCommerce solutions that convert.
             </motion.p>
 
-            {/* CTAs */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.95, duration: 0.7 }}
-              style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '40px' }}
+              className="hero-ctas"
+              style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '32px' }}
             >
               <button
                 onClick={() => onNavigate('projects')}
@@ -215,42 +217,44 @@ const Hero = ({ onNavigate }: HeroProps) => {
               </button>
             </motion.div>
 
-            {/* Socials */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 3.1, duration: 0.7 }}
+              className="hero-socials-row"
               style={{ display: 'flex', gap: '12px', alignItems: 'center' }}
             >
-              {[
-                { Icon: Github, href: 'https://github.com/nitulpatel', label: 'GitHub' },
-                { Icon: Linkedin, href: 'https://www.linkedin.com/in/nitul-patel-a4ab64141', label: 'LinkedIn' },
-              ].map(({ Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  title={label}
-                  style={{
-                    width: '38px', height: '38px', borderRadius: '50%',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#666', transition: 'all 0.25s ease', textDecoration: 'none',
-                  }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                    (e.currentTarget).style.borderColor = '#ff4747';
-                    (e.currentTarget).style.color = '#ff4747';
-                    (e.currentTarget).style.background = 'rgba(255,71,71,0.08)';
-                  }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
-                    (e.currentTarget).style.borderColor = 'rgba(255,255,255,0.12)';
-                    (e.currentTarget).style.color = '#666';
-                    (e.currentTarget).style.background = 'transparent';
-                  }}
-                >
-                  <Icon size={17} />
-                </a>
-              ))}
-              <span style={{ fontSize: '12px', color: '#3a3a3a', fontWeight: 500, marginLeft: '4px' }}>nitulpatel504@gmail.com</span>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {[
+                  { Icon: Github, href: 'https://github.com/nitulpatel', label: 'GitHub' },
+                  { Icon: Linkedin, href: 'https://www.linkedin.com/in/nitul-patel-a4ab64141', label: 'LinkedIn' },
+                ].map(({ Icon, href, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    title={label}
+                    style={{
+                      width: '40px', height: '40px', borderRadius: '50%',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#999', transition: 'all 0.25s ease', textDecoration: 'none',
+                    }}
+                    onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                      (e.currentTarget).style.borderColor = '#ff4747';
+                      (e.currentTarget).style.color = '#ff4747';
+                      (e.currentTarget).style.background = 'rgba(255,71,71,0.08)';
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                      (e.currentTarget).style.borderColor = 'rgba(255,255,255,0.15)';
+                      (e.currentTarget).style.color = '#999';
+                      (e.currentTarget).style.background = 'transparent';
+                    }}
+                  >
+                    <Icon size={18} />
+                  </a>
+                ))}
+              </div>
+              <span style={{ fontSize: '13px', color: '#888', fontWeight: 500, marginLeft: '8px' }}>nitulpatel504@gmail.com</span>
             </motion.div>
           </div>
 
@@ -259,22 +263,24 @@ const Hero = ({ onNavigate }: HeroProps) => {
             initial={{ opacity: 0, scale: 0.88 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 2.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            style={{ display: 'flex', justifyContent: 'center', padding: '0 20px' }}
+            style={{ display: 'flex', justifyContent: 'center', padding: '0', width: '100%' }}
           >
-            <div style={{ position: 'relative', width: '100%', maxWidth: '360px' }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: '360px', margin: '0 auto' }}>
               {/* Card */}
               <div
                 className="glass-card"
                 style={{ borderRadius: '28px', padding: '36px', position: 'relative', overflow: 'hidden' }}
               >
                 {/* Avatar */}
-                <div style={{
-                  width: '76px', height: '76px', borderRadius: '20px',
-                  background: 'linear-gradient(135deg, #ff4747 0%, #ff8080 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '34px', fontWeight: 900, color: '#fff',
-                  marginBottom: '20px', boxShadow: '0 8px 30px rgba(255,71,71,0.28)',
-                }}>N</div>
+                <div 
+                  className="profile-avatar"
+                  style={{
+                    width: '76px', height: '76px', borderRadius: '20px',
+                    background: 'linear-gradient(135deg, #ff4747 0%, #ff8080 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '34px', fontWeight: 900, color: '#fff',
+                    marginBottom: '20px', boxShadow: '0 8px 30px rgba(255,71,71,0.28)',
+                  }}>N</div>
 
                 <div style={{ marginBottom: '20px' }}>
                   <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', margin: '0 0 5px' }}>Nitul Patel</h3>
@@ -282,7 +288,7 @@ const Hero = ({ onNavigate }: HeroProps) => {
                 </div>
 
                 {/* Stats row */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }} className="profile-stats-grid">
                   {[
                     { val: '5+', label: 'Years' },
                     { val: '120+', label: 'Projects' },
@@ -319,11 +325,12 @@ const Hero = ({ onNavigate }: HeroProps) => {
               <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="glass-card"
+                className="glass-card available-badge-floating"
                 style={{
-                  position: 'absolute', bottom: '-30px', right: '-30px',
+                  position: 'absolute', bottom: '-20px', right: '-10px',
                   padding: '12px 18px', borderRadius: '16px',
                   display: 'flex', alignItems: 'center', gap: '10px',
+                  zIndex: 20,
                 }}
               >
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00e676', boxShadow: '0 0 8px #00e676', flexShrink: 0 }} />
@@ -356,14 +363,41 @@ const Hero = ({ onNavigate }: HeroProps) => {
 
       <style>{`
         @media (max-width: 1024px) {
-          .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .hero-section { padding: 120px 0 80px !important; }
+          .hero-grid { grid-template-columns: 1fr !important; gap: 64px !important; text-align: center; }
+          .hero-grid > div:first-child { display: flex; flex-direction: column; align-items: center; }
+          .hero-grid p { margin-left: auto !important; margin-right: auto !important; }
+          .hero-grid div[style*="display: flex"] { justify-content: center !important; }
+          .hero-role-container { justify-content: center !important; }
+          .hero-socials-row { justify-content: center !important; }
         }
         @media (max-width: 767px) {
-          .hero-grid { gap: 32px !important; }
+          .hero-section { padding: 100px 0 60px !important; }
+          .hero-grid { gap: 48px !important; }
           .glass-card { padding: 28px !important; }
+          .hero-ctas { flex-direction: column !important; align-items: center !important; gap: 12px !important; width: 100% !important; max-width: 320px !important; margin-left: auto !important; margin-right: auto !important; }
+          .hero-ctas button { width: 100% !important; justify-content: center !important; }
+          .available-badge-floating { 
+            position: relative !important; 
+            bottom: auto !important; 
+            right: auto !important; 
+            margin: 20px auto 0 !important;
+            width: fit-content;
+          }
+          .profile-avatar { margin-left: auto !important; margin-right: auto !important; }
+          .glass-card > div:nth-child(2) { text-align: center !important; }
         }
         @media (max-width: 480px) {
+          .hero-section { padding: 80px 0 40px !important; }
           .glass-card { padding: 24px !important; margin: 0 auto !important; }
+          h1 { font-size: 42px !important; line-height: 1.1 !important; margin-bottom: 20px !important; }
+          .hero-description { font-size: 15px !important; line-height: 1.6 !important; padding: 0 10px !important; }
+          .hero-role-container { min-height: 60px !important; margin-bottom: 20px !important; font-size: 18px !important; }
+          .profile-stats-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+          .profile-stats-grid > div { padding: 16px !important; }
+          .hero-socials-row { flex-direction: column !important; gap: 12px !important; align-items: center !important; }
+          .hero-socials-row > div { justify-content: center !important; width: 100% !important; }
+          .hero-socials-row span { margin-left: 0 !important; font-size: 14px !important; }
         }
       `}</style>
     </section>

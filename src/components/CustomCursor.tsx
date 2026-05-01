@@ -58,10 +58,24 @@ const CustomCursor = () => {
     const onLeave = () => setHidden(true);
     const onBack  = () => setHidden(false);
 
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        rawX.set(touch.clientX);
+        rawY.set(touch.clientY);
+        setHidden(false);
+      }
+    };
+
+    const onTouchEnd = () => setHidden(true);
+
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseover', onEnter);
     window.addEventListener('mousedown', onDown);
     window.addEventListener('mouseup',   onUp);
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchstart', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd);
     document.addEventListener('mouseleave', onLeave);
     document.addEventListener('mouseenter', onBack);
 
@@ -70,6 +84,9 @@ const CustomCursor = () => {
       window.removeEventListener('mouseover', onEnter);
       window.removeEventListener('mousedown', onDown);
       window.removeEventListener('mouseup',   onUp);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchstart', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
       document.removeEventListener('mouseleave', onLeave);
       document.removeEventListener('mouseenter', onBack);
     };
@@ -86,7 +103,7 @@ const CustomCursor = () => {
     setRipples(prev => prev.filter(r => r.id !== id));
 
   return (
-    <div style={{ pointerEvents: 'none', display: window.innerWidth >= 1024 ? 'block' : 'none' }}>
+    <div style={{ pointerEvents: 'none', position: 'fixed', inset: 0, zIndex: 9999 }}>
 
       {/* Trail particles */}
       {trails.map((t, i) => (

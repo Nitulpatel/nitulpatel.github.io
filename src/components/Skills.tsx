@@ -227,6 +227,7 @@ const Skills = () => {
                 gridTemplateColumns: 'repeat(2, 1fr)',
                 gap: '20px',
               }}
+              className="skills-grid"
             >
               {TAB_CONTENT[activeTab].skills.map((skill, i) => (
                 <motion.div
@@ -442,7 +443,6 @@ const Skills = () => {
         .tabs-container::-webkit-scrollbar {
           display: none;
         }
-
         .skill-card:hover .card-blur {
           opacity: 1 !important;
         }
@@ -477,9 +477,13 @@ const Skills = () => {
         }
 
         @media (max-width: 560px) {
+          .skills-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px !important;
+          }
           .skill-card {
-            font-size: 12px !important;
-            padding: 16px 12px !important;
+            font-size: 13px !important;
+            padding: 24px 16px !important;
           }
           .tabs-container button {
             padding: 12px 16px !important;

@@ -156,18 +156,26 @@ function AppContent() {
       return;
     }
 
+    const scrollTarget = () => {
+      const el = document.getElementById(target);
+      if (el) {
+        // Use a small delay to ensure any layout shifts (like menu closing) are handled
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    };
+
     if (page !== 'home') {
       navigate('..');     // back to basename root, then scroll
       setActiveSection(target);
-      setTimeout(() => {
-        document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 350);  // 350ms: enough time for home page to mount & render
+      setTimeout(scrollTarget, 350); 
       return;
     }
 
     // Already on home → just scroll
     setActiveSection(target);
-    document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollTarget();
   }, [navigate, page]);
 
   // ── Active-section observer (home only) ─────────────────────────────────────

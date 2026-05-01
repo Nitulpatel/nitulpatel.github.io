@@ -32,7 +32,15 @@ const BackToTop = () => {
           animate={{ opacity: 1, y: 0,  scale: 1 }}
           exit={{    opacity: 0, y: 24, scale: 0.7 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Fallback for some mobile browsers
+            setTimeout(() => {
+              if (window.scrollY > 0) {
+                document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }, 100);
+          }}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.92 }}
           style={{
