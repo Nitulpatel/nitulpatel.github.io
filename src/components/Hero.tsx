@@ -259,7 +259,7 @@ const Hero = ({ onNavigate }: HeroProps) => {
             initial={{ opacity: 0, scale: 0.88 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 2.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            style={{ display: 'flex', justifyContent: 'center' }}
+            style={{ display: 'flex', justifyContent: 'center', padding: '0 20px' }}
           >
             <div style={{ position: 'relative', width: '100%', maxWidth: '360px' }}>
               {/* Card */}
@@ -360,6 +360,10 @@ const Hero = ({ onNavigate }: HeroProps) => {
         }
         @media (max-width: 767px) {
           .hero-grid { gap: 32px !important; }
+          .glass-card { padding: 28px !important; }
+        }
+        @media (max-width: 480px) {
+          .glass-card { padding: 24px !important; margin: 0 auto !important; }
         }
       `}</style>
     </section>

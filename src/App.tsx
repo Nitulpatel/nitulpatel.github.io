@@ -9,7 +9,7 @@
  *   3. Mount BrowserRouter with the detected basename
  *   4. Render global chrome: Navbar, Footer, scroll bar, cursor, back-to-top
  *   5. Route to the correct page component
- *   6. Own shared state: activeSection, testimonials
+ *   6. Own shared state: activeSection
  */
 
 import React, {
@@ -27,7 +27,6 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom';
-import { Testimonial } from './types';
 
 // ── Global chrome ────────────────────────────────────────────────────────────
 import Preloader    from './components/Preloader';
@@ -134,25 +133,10 @@ function AppContent() {
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
   const [activeSection, setActiveSection] = useState<string>('home');
-  const [testimonials,  setTestimonials]  = useState<Testimonial[]>([]);
 
   // BrowserRouter strips basename → pathname is relative (e.g. "/projects")
   const routePath = location.pathname.replace(/^\//, '').replace(/\/$/, '');
   const page: Page = (PAGE_ROUTES.includes(routePath) ? routePath : 'home') as Page;
-
-  // ── Data ────────────────────────────────────────────────────────────────────
-
-  const fetchTestimonials = useCallback(async () => {
-    try {
-      const res  = await fetch('/api/testimonials', { credentials: 'same-origin' });
-      const data = await res.json();
-      setTestimonials(data);
-    } catch (err) {
-      console.error('Failed to fetch testimonials', err);
-    }
-  }, []);
-
-  useEffect(() => { fetchTestimonials(); }, [fetchTestimonials]);
 
   // ── Scroll-to-top on route change ──────────────────────────────────────────
 
@@ -246,7 +230,7 @@ function AppContent() {
         <Route path="/"           element={<HomePage      onNavigate={handleNavigate} />} />
         <Route path="/projects"   element={<ProjectsPage  />} />
         <Route path="/experience" element={<ExperiencePage />} />
-        <Route path="/contact"    element={<ContactPage   onSubmissionSuccess={fetchTestimonials} />} />
+        <Route path="/contact"    element={<ContactPage   onSubmissionSuccess={() => {}} />} />
         {/* Admin — not linked in UI, only accessible by direct URL */}
         <Route path="/admin"      element={<AdminPage />} />
         {/* 404 → fall back to home */}

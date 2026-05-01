@@ -268,7 +268,6 @@ const Experience = ({ standalone }: ExperienceProps) => {
           .desktop-only { display: none !important; }
 
           .glass-card { text-align: left !important; padding: 24px !important; }
-          .glass-card > div { justify-content: flex-start !important; }
         }
       `}</style>
     </section>

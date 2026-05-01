@@ -408,9 +408,21 @@
 @media (max-width: 1024px) {
   .section   { padding: var(--space-tablet) 0; }
   .container { padding: 0 var(--container-px-tablet); }
+  .glass-card { 
+    display: flex !important; 
+    justify-content: center !important;
+    align-items: center !important;
+  }
 }
 
 @media (max-width: 767px) {
   .section   { padding: var(--space-mobile) 0; }
   .container { padding: 0 var(--container-px-mobile); }
+  .glass-card { 
+    display: flex !important; 
+    justify-content: center !important; 
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
 }

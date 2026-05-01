@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
 
-type Page = 'home' | 'projects' | 'experience' | 'contact';
+type Page = 'home' | 'projects' | 'experience' | 'contact' | 'admin';
 
 interface NavbarProps {
   activePage: Page;

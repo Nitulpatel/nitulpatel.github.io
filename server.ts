@@ -47,16 +47,6 @@ async function startServer() {
     }
   });
 
-  app.get("/api/testimonials", (req, res) => {
-    try {
-      const data = JSON.parse(fs.readFileSync(SUBMISSIONS_FILE, "utf-8"));
-      res.json([...data].reverse());
-    } catch (error) {
-      console.error("Error fetching testimonials:", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
   // ── Admin: view all submissions (key-protected) ──────────────────────────
   // Access: GET /api/submissions?key=YOUR_ADMIN_KEY
   // Set ADMIN_KEY=yourpassword in your .env file  (defaults to "admin123" for dev)
