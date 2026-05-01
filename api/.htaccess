@@ -1,0 +1,11 @@
+# Protect submissions.json from direct HTTP access
+<Files "submissions.json">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Allow extensionless PHP URLs (e.g. /api/contact -> /api/contact.php)
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [L]
