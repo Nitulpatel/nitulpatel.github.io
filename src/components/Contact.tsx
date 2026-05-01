@@ -20,6 +20,10 @@ const API_CONTACT = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api/contact`
   : '/api/contact';
 
+// Static-host fallback (e.g. GitHub Pages where PHP/Node API does not run)
+const FALLBACK_CONTACT = import.meta.env.VITE_CONTACT_FALLBACK_URL
+  || 'https://formsubmit.co/ajax/nitulpatel504@gmail.com';
+
 const Contact = ({ onSubmissionSuccess, standalone }: ContactProps) => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [status,   setStatus]   = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -55,14 +59,69 @@ const Contact = ({ onSubmissionSuccess, standalone }: ContactProps) => {
         onSubmissionSuccess();
         setTimeout(() => setStatus('idle'), 4000);
       } else {
-        setErrMsg((data as any)?.error ?? 'Something went wrong');
+        // On static hosts (GitHub Pages), /api/contact is unavailable.
+        // Fall back to a form relay endpoint.
+        const fallback = await fetch(FALLBACK_CONTACT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject || 'Portfolio Contact Form',
+            message: formData.message,
+            _subject: `Portfolio inquiry from ${formData.name}`,
+            _captcha: 'false',
+            _template: 'table',
+          }),
+        });
+
+        if (fallback.ok) {
+          setStatus('success');
+          setFormData({ name: '', email: '', subject: '', message: '' });
+          onSubmissionSuccess();
+          setTimeout(() => setStatus('idle'), 4000);
+        } else {
+          const fallbackData = await fallback.json().catch(() => ({}));
+          setErrMsg(
+            (fallbackData as any)?.message
+            || (data as any)?.error
+            || 'Something went wrong',
+          );
+          setStatus('error');
+          setTimeout(() => setStatus('idle'), 4000);
+        }
+      }
+    } catch {
+      try {
+        const fallback = await fetch(FALLBACK_CONTACT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject || 'Portfolio Contact Form',
+            message: formData.message,
+            _subject: `Portfolio inquiry from ${formData.name}`,
+            _captcha: 'false',
+            _template: 'table',
+          }),
+        });
+
+        if (fallback.ok) {
+          setStatus('success');
+          setFormData({ name: '', email: '', subject: '', message: '' });
+          onSubmissionSuccess();
+          setTimeout(() => setStatus('idle'), 4000);
+        } else {
+          setErrMsg('Network error — please try again');
+          setStatus('error');
+          setTimeout(() => setStatus('idle'), 4000);
+        }
+      } catch {
+        setErrMsg('Network error — please try again');
         setStatus('error');
         setTimeout(() => setStatus('idle'), 4000);
       }
-    } catch {
-      setErrMsg('Network error — please try again');
-      setStatus('error');
-      setTimeout(() => setStatus('idle'), 4000);
     }
   };
 
