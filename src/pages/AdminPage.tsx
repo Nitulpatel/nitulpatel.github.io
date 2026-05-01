@@ -18,6 +18,8 @@ interface Submission {
 const API_BASE = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api`
   : '/api';
+const USING_REMOTE_API = Boolean(import.meta.env.VITE_API_URL);
+const IS_GITHUB_PAGES = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
 
 const AdminPage = () => {
   const [key,         setKey]         = useState('');
@@ -46,7 +48,11 @@ const AdminPage = () => {
       setTotal(data.total ?? 0);
       setAuthed(true);
     } catch {
-      setError('Failed to connect to the server.');
+      if (IS_GITHUB_PAGES && !USING_REMOTE_API) {
+        setError('Backend not connected. Set VITE_API_URL to your hosted PHP API domain.');
+      } else {
+        setError('Failed to connect to the server.');
+      }
     } finally {
       setLoading(false);
     }
