@@ -20,7 +20,7 @@ const REMOTE_API_ORIGIN = import.meta.env.VITE_API_URL
   || (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')
     ? 'https://nitul.infinityfreeapp.com'
     : '');
-const API_CONTACT = REMOTE_API_ORIGIN ? `${REMOTE_API_ORIGIN}/api/contact` : '/api/contact';
+const API_CONTACT = REMOTE_API_ORIGIN ? `${REMOTE_API_ORIGIN}/api/contact.php` : '/api/contact';
 
 // Static-host fallback (e.g. GitHub Pages where PHP/Node API does not run)
 const FALLBACK_CONTACT = import.meta.env.VITE_CONTACT_FALLBACK_URL

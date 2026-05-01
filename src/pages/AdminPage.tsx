@@ -22,6 +22,7 @@ const REMOTE_API_ORIGIN = import.meta.env.VITE_API_URL
 const API_BASE = REMOTE_API_ORIGIN ? `${REMOTE_API_ORIGIN}/api` : '/api';
 const USING_REMOTE_API = Boolean(REMOTE_API_ORIGIN);
 const IS_GITHUB_PAGES = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+const SUBMISSIONS_ENDPOINT = REMOTE_API_ORIGIN ? `${API_BASE}/submissions.php` : `${API_BASE}/submissions`;
 
 const AdminPage = () => {
   const [key,         setKey]         = useState('');
@@ -37,7 +38,7 @@ const AdminPage = () => {
     setLoading(true);
     setError('');
     try {
-      const res  = await fetch(`${API_BASE}/submissions?key=${encodeURIComponent(adminKey)}`, {
+      const res  = await fetch(`${SUBMISSIONS_ENDPOINT}?key=${encodeURIComponent(adminKey)}`, {
         credentials: 'same-origin'
       });
       if (res.status === 401) {
@@ -68,7 +69,7 @@ const AdminPage = () => {
   // ── CSV export — triggers PHP download ──────────────────────────────────
   const handleExportCSV = () => {
     // PHP sends file as attachment → open in new tab so browser downloads it
-    window.open(`${API_BASE}/submissions?key=${encodeURIComponent(key)}&export=csv`, '_blank');
+    window.open(`${SUBMISSIONS_ENDPOINT}?key=${encodeURIComponent(key)}&export=csv`, '_blank');
   };
 
   // ── Export JSON in-browser ───────────────────────────────────────────────
