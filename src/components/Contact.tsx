@@ -16,9 +16,11 @@ const contactInfo = [
 // ── PHP API endpoint ─────────────────────────────────────────────────────────
 // Dev:  Vite proxy rewrites /api/* → your PHP dev server  (see vite.config.ts)
 // Prod: /api/contact.php lives in the same public_html folder as the built site
-const API_CONTACT = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api/contact`
-  : '/api/contact';
+const REMOTE_API_ORIGIN = import.meta.env.VITE_API_URL
+  || (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')
+    ? 'https://nitul.infinityfreeapp.com'
+    : '');
+const API_CONTACT = REMOTE_API_ORIGIN ? `${REMOTE_API_ORIGIN}/api/contact` : '/api/contact';
 
 // Static-host fallback (e.g. GitHub Pages where PHP/Node API does not run)
 const FALLBACK_CONTACT = import.meta.env.VITE_CONTACT_FALLBACK_URL

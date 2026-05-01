@@ -15,10 +15,12 @@ interface Submission {
 }
 
 // ── PHP API endpoints ─────────────────────────────────────────────────────────
-const API_BASE = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api';
-const USING_REMOTE_API = Boolean(import.meta.env.VITE_API_URL);
+const REMOTE_API_ORIGIN = import.meta.env.VITE_API_URL
+  || (typeof window !== 'undefined' && window.location.hostname.endsWith('github.io')
+    ? 'https://nitul.infinityfreeapp.com'
+    : '');
+const API_BASE = REMOTE_API_ORIGIN ? `${REMOTE_API_ORIGIN}/api` : '/api';
+const USING_REMOTE_API = Boolean(REMOTE_API_ORIGIN);
 const IS_GITHUB_PAGES = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
 
 const AdminPage = () => {
