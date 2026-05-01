@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Mail, Calendar, MessageSquare, User, Lock,
-  RefreshCw, Inbox, Download, LogOut,
+  RefreshCw, Inbox, Download, LogOut, SquarePen, Trash2, Save, X,
 } from 'lucide-react';
 import { hasSupabaseConfig, supabase } from '../lib/supabase';
 
 interface Submission {
+  id: number;
   name: string;
   email: string;
   subject: string;
@@ -25,6 +26,9 @@ const AdminPage = () => {
   const [loading,     setLoading]     = useState(false);
   const [error,       setError]       = useState('');
   const [selected,    setSelected]    = useState<Submission | null>(null);
+  const [editingId,   setEditingId]   = useState<number | null>(null);
+  const [editForm,    setEditForm]    = useState({ name: '', email: '', subject: '', message: '' });
+  const [actionBusyId, setActionBusyId] = useState<number | null>(null);
 
   // ── Fetch all submissions from Supabase ──────────────────────────────────
   const fetchSubmissions = async () => {
@@ -40,7 +44,7 @@ const AdminPage = () => {
     try {
       const { data, error } = await supabase
         .from('submissions')
-        .select('name, email, subject, message, date, ip')
+        .select('id, name, email, subject, message, date, ip')
         .order('date', { ascending: false });
 
       if (error) {
@@ -66,6 +70,77 @@ const AdminPage = () => {
       return;
     }
     fetchSubmissions();
+  };
+
+  const startEdit = (s: Submission) => {
+    setEditingId(s.id);
+    setEditForm({
+      name: s.name ?? '',
+      email: s.email ?? '',
+      subject: s.subject ?? '',
+      message: s.message ?? '',
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({ name: '', email: '', subject: '', message: '' });
+  };
+
+  const saveEdit = async (id: number) => {
+    if (!supabase) return;
+    setActionBusyId(id);
+    setError('');
+    try {
+      const { error: updateError } = await supabase
+        .from('submissions')
+        .update({
+          name: editForm.name.trim(),
+          email: editForm.email.trim(),
+          subject: editForm.subject.trim(),
+          message: editForm.message.trim(),
+        })
+        .eq('id', id);
+
+      if (updateError) {
+        setError(updateError.message || 'Failed to update submission');
+        return;
+      }
+
+      await fetchSubmissions();
+      cancelEdit();
+    } catch {
+      setError('Failed to update submission');
+    } finally {
+      setActionBusyId(null);
+    }
+  };
+
+  const deleteSubmission = async (id: number) => {
+    if (!supabase) return;
+    const ok = window.confirm('Delete this submission permanently?');
+    if (!ok) return;
+
+    setActionBusyId(id);
+    setError('');
+    try {
+      const { error: deleteError } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) {
+        setError(deleteError.message || 'Failed to delete submission');
+        return;
+      }
+
+      if (selected?.id === id) setSelected(null);
+      await fetchSubmissions();
+    } catch {
+      setError('Failed to delete submission');
+    } finally {
+      setActionBusyId(null);
+    }
   };
 
   // ── CSV export ───────────────────────────────────────────────────────────
@@ -209,6 +284,7 @@ const AdminPage = () => {
                 </button>
               </div>
             </div>
+            {error && <p style={{ color: '#ff4747', fontSize: 13, margin: '0 0 12px' }}>{error}</p>}
 
             {/* Empty state */}
             {submissions.length === 0 && (
@@ -221,12 +297,12 @@ const AdminPage = () => {
             {/* List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {submissions.map((s, i) => (
-                <motion.div key={i}
+                <motion.div key={s.id}
                   initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }}
-                  onClick={() => setSelected(selected?.date === s.date ? null : s)}
+                  onClick={() => setSelected(selected?.id === s.id ? null : s)}
                   style={{
                     background: 'rgba(17,17,17,0.85)',
-                    border: `1px solid ${selected?.date === s.date ? 'rgba(255,71,71,0.35)' : 'rgba(255,255,255,0.07)'}`,
+                    border: `1px solid ${selected?.id === s.id ? 'rgba(255,71,71,0.35)' : 'rgba(255,255,255,0.07)'}`,
                     borderRadius: 18, padding: '20px 24px', cursor: 'pointer',
                     transition: 'border-color 0.2s ease',
                   }}>
@@ -255,35 +331,107 @@ const AdminPage = () => {
                   )}
 
                   <AnimatePresence>
-                    {selected?.date === s.date && (
+                    {selected?.id === s.id && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
-
-                        <p style={{
-                          fontSize: 14, color: '#888', lineHeight: 1.75,
-                          margin: '16px 0 0 48px', padding: '16px',
-                          background: 'rgba(255,255,255,0.03)', borderRadius: 12,
-                          borderLeft: '2px solid rgba(255,71,71,0.3)',
-                          whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-                        }}>
-                          {s.message}
-                        </p>
+                        {editingId === s.id ? (
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              margin: '16px 0 0 48px',
+                              padding: '16px',
+                              background: 'rgba(255,255,255,0.03)',
+                              borderRadius: 12,
+                              borderLeft: '2px solid rgba(255,71,71,0.3)',
+                              display: 'grid',
+                              gap: 10,
+                            }}
+                          >
+                            <input
+                              value={editForm.name}
+                              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                              placeholder="Name"
+                              style={{ background: '#111', color: '#fff', border: '1px solid #333', borderRadius: 8, padding: '10px 12px' }}
+                            />
+                            <input
+                              value={editForm.email}
+                              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                              placeholder="Email"
+                              style={{ background: '#111', color: '#fff', border: '1px solid #333', borderRadius: 8, padding: '10px 12px' }}
+                            />
+                            <input
+                              value={editForm.subject}
+                              onChange={(e) => setEditForm({ ...editForm, subject: e.target.value })}
+                              placeholder="Subject"
+                              style={{ background: '#111', color: '#fff', border: '1px solid #333', borderRadius: 8, padding: '10px 12px' }}
+                            />
+                            <textarea
+                              rows={4}
+                              value={editForm.message}
+                              onChange={(e) => setEditForm({ ...editForm, message: e.target.value })}
+                              placeholder="Message"
+                              style={{ background: '#111', color: '#fff', border: '1px solid #333', borderRadius: 8, padding: '10px 12px', resize: 'vertical' }}
+                            />
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                              <button
+                                onClick={() => saveEdit(s.id)}
+                                disabled={actionBusyId === s.id}
+                                style={{ ...btnBase, color: '#00e676', borderColor: 'rgba(0,230,118,0.25)', background: 'rgba(0,230,118,0.06)' }}
+                              >
+                                <Save size={13} /> Save
+                              </button>
+                              <button
+                                onClick={cancelEdit}
+                                disabled={actionBusyId === s.id}
+                                style={{ ...btnBase, color: '#ccc' }}
+                              >
+                                <X size={13} /> Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p style={{
+                            fontSize: 14, color: '#888', lineHeight: 1.75,
+                            margin: '16px 0 0 48px', padding: '16px',
+                            background: 'rgba(255,255,255,0.03)', borderRadius: 12,
+                            borderLeft: '2px solid rgba(255,71,71,0.3)',
+                            whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                          }}>
+                            {s.message}
+                          </p>
+                        )}
 
                         {/* IP tag */}
                         {s.ip && (
                           <p style={{ fontSize: 11, color: '#333', margin: '8px 0 0 48px' }}>IP: {s.ip}</p>
                         )}
 
-                        <a href={`mailto:${s.email}?subject=Re: ${encodeURIComponent(s.subject || 'Your message')}`}
-                          style={{
-                            display: 'inline-flex', alignItems: 'center', gap: 6,
-                            margin: '12px 0 0 48px', padding: '8px 18px', borderRadius: 9999,
-                            background: 'rgba(255,71,71,0.1)', border: '1px solid rgba(255,71,71,0.2)',
-                            color: '#ff4747', fontSize: 12, fontWeight: 700, textDecoration: 'none',
-                          }}>
-                          <Mail size={12} /> Reply via Email
-                        </a>
+                        <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '12px 0 0 48px' }}>
+                          <a href={`mailto:${s.email}?subject=Re: ${encodeURIComponent(s.subject || 'Your message')}`}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 6,
+                              padding: '8px 18px', borderRadius: 9999,
+                              background: 'rgba(255,71,71,0.1)', border: '1px solid rgba(255,71,71,0.2)',
+                              color: '#ff4747', fontSize: 12, fontWeight: 700, textDecoration: 'none',
+                            }}>
+                            <Mail size={12} /> Reply via Email
+                          </a>
+                          <button
+                            onClick={() => startEdit(s)}
+                            disabled={actionBusyId === s.id}
+                            style={{ ...btnBase, color: '#6ec6ff', borderColor: 'rgba(110,198,255,0.25)', background: 'rgba(110,198,255,0.06)' }}
+                          >
+                            <SquarePen size={13} /> Edit
+                          </button>
+                          <button
+                            onClick={() => deleteSubmission(s.id)}
+                            disabled={actionBusyId === s.id}
+                            style={{ ...btnBase, color: '#ff4747', borderColor: 'rgba(255,71,71,0.25)', background: 'rgba(255,71,71,0.06)' }}
+                          >
+                            <Trash2 size={13} /> Delete
+                          </button>
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
